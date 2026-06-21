@@ -1,0 +1,40 @@
+# e-Madrasah Clean URLs (Final Optimized Version)
+RewriteEngine On
+RewriteBase /emadrasah/
+
+# 1. PENGECUALIAN ASSET & FILE ASLI
+# Jika file atau folder asli ada, langsung jalankan tanpa rewrite
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# 2. REDIRECT EKSTERNAL (Opsional: Bersihkan .php dari bar alamat)
+RewriteCond %{REQUEST_METHOD} !POST
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /emadrasah/modules/([^/\ ]+)/index\.php\ HTTP/
+RewriteRule ^modules/([^/]+)/index\.php$ $1 [R=301,L]
+
+RewriteCond %{REQUEST_METHOD} !POST
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /emadrasah/modules/([^/\ ]+)/([^/\ ]+)\.php\ HTTP/
+RewriteRule ^modules/([^/]+)/([^/]+)\.php$ $1/$2 [R=301,L]
+
+RewriteCond %{REQUEST_METHOD} !POST
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /emadrasah/([^/\ ]+)\.php\ HTTP/
+RewriteRule ^([^/]+)\.php$ $1 [R=301,L]
+
+
+# 3. INTERNAL REWRITES (Masking Siluman)
+
+# A. Map /emadrasah/jadwal/grid -> /emadrasah/modules/jadwal/grid.php
+# Cek file relatif terhadap folder emadrasah
+RewriteCond %{REQUEST_URI} ^/emadrasah/([^/]+)/([^/]+)/?$
+RewriteCond %{DOCUMENT_ROOT}/emadrasah/modules/%1/%2.php -f
+RewriteRule ^([^/]+)/([^/]+)/?$ modules/$1/$2.php [L]
+
+# B. Map /emadrasah/jadwal -> /emadrasah/modules/jadwal/index.php
+RewriteCond %{REQUEST_URI} ^/emadrasah/([^/]+)/?$
+RewriteCond %{DOCUMENT_ROOT}/emadrasah/modules/%1/index.php -f
+RewriteRule ^([^/]+)/?$ modules/$1/index.php [L]
+
+# C. Map file di root (misal /emadrasah/login -> /emadrasah/login.php)
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^([^/]+)/?$ $1.php [L]
